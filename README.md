@@ -457,7 +457,7 @@ LIMIT 10;
 |34|Resistance Bands|Sports|1020|
 |27|Hair Mask|Beauty|1009|
 
-5 des top 10 produits les plus vendus sont dans la catégorie électronique et le **chargeur portable** est le produit qui a été le plus vendu au cours des 4 années. 
+5 des top 10 produits les plus vendus sont dans la catégorie **électroniques** et le **chargeur portable** est le produit qui a été le plus vendu au cours des 4 années. 
 
 **Question :** Quels sont les 10 produits les moins vendus? 
 
@@ -485,6 +485,26 @@ LIMIT 10;
 |16|Polo Shirt|Fashion|912|
 |25|Vitamin C Serum|Beauty|912|
 |20|Scented Candle|Home|925|
+
+**Question :** Quel est le CA et la quantité vendue par catégorie? 
+
+```sql
+SELECT p.category, SUM(o.quantity) as Quantity_sold, SUM(o.quantity * o.unit_price) as CA 
+FROM products p
+INNER JOIN orders o ON p.product_id = o.product_id
+GROUP BY p.category
+ORDER BY Quantity_sold DESC;    
+```
+
+|category|Quantity_sold|CA|
+|--------|-------------|--|
+|Electronics|7988|702389.0|
+|Sports|7639|145823.0|
+|Beauty|7639|301858.0|
+|Fashion|7562|631858.0|
+|Home|7516|354234.0|
+
+La catégories **Electroniques** vend le plus et génèrent de CA mais a des prix supérieurs aux produits des autres vatégories. Les produits **Maison** se vendent le moins mais génèrent plus de CA que les catégories **Beauté et Sports**. 
 
 
 
