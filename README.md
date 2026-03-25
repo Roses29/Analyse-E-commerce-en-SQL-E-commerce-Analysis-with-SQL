@@ -363,10 +363,10 @@ ORDER BY ecart_pct DESC;
 |06|34659.5|46036.0|-24.7|
 |03|32604.25|46036.0|-29.2|
 
-Les mois d'octobre, novembre et particulièrement décembre générent plus de chiffre d'affaires que la moyenne globale, ce sont les mois où il y a des pics de ventes. Les mois de janvier, juin et mars sont les mois très faibles en termes de ventes. 
+Les mois **d'octobre, novembre et particulièrement décembre** générent plus de chiffre d'affaires que la moyenne globale, ce sont les mois où il y a des pics de ventes. Les mois **de janvier, juin et mars** sont les mois très faibles en termes de ventes. 
 
 
-### 3. Produits
+### 3. Produits et Catégories 
 
 **Question :** Quels produits génèrent le plus de CA ? Les plus vendus sont-ils les plus rentables ?
 
@@ -383,10 +383,110 @@ INNER JOIN orders o ON p.product_id = o.product_id
 GROUP BY p.product_id
 ORDER BY CA DESC;
 ```
+**Résultat :** 
+
+|product_name|category|quantity_sold|CA|prix_moyen|
+|------------|--------|-------------|--|----------|
+|Leather Jacket|Fashion|937|176156.0|188.0|
+|Wireless Headphones|Electronics|1027|171509.0|167.0|
+|Smart Watch|Electronics|897|170430.0|190.0|
+|Running Sneakers|Fashion|1042|142754.0|137.0|
+|Mechanical Keyboard|Electronics|1044|105444.0|101.0|
+|Perfume 50ml|Beauty|1033|96069.0|93.0|
+|Webcam HD|Electronics|997|91724.0|92.0|
+|Coffee Maker|Home|944|90624.0|96.0|
+|Wool Sweater|Fashion|1002|87174.0|87.0|
+|Air Purifier|Home|954|78228.0|82.0|
+|Chino Pants|Fashion|964|74228.0|77.0|
+|Slim Fit Jeans|Fashion|834|72558.0|87.0|
+|Portable Charger|Electronics|1084|71544.0|66.0|
+|Eye Contour Cream|Beauty|1026|64638.0|63.0|
+|Vitamin C Serum|Beauty|912|62016.0|68.0|
+|Wall Clock|Home|846|46530.0|55.0|
+|Bluetooth Speaker|Electronics|1038|43596.0|42.0|
+|Silk Scarf|Fashion|934|41096.0|44.0|
+|Foam Roller|Sports|948|38868.0|41.0|
+|LED Desk Lamp|Electronics|1033|35122.0|34.0|
+|Scented Candle|Home|925|33300.0|36.0|
+|Storage Basket|Home|934|31756.0|34.0|
+|Yoga Mat|Sports|863|30205.0|35.0|
+|Non-stick Pan|Home|971|27188.0|28.0|
+|Bamboo Cutting Board|Home|991|23784.0|24.0|
+|Throw Pillow|Home|951|22824.0|24.0|
+|Nail Polish Kit|Beauty|930|21390.0|23.0|
+|Polo Shirt|Fashion|912|19152.0|21.0|
+|Canvas Tote Bag|Fashion|937|18740.0|20.0|
+|Gym Gloves|Sports|930|17670.0|19.0|
+|Moisturizing Cream|Beauty|954|17172.0|18.0|
+|Jump Rope|Sports|994|16898.0|17.0|
+|Water Bottle 750ml|Sports|1002|15030.0|15.0|
+|Lip Balm Set|Beauty|843|14331.0|17.0|
+|Hair Mask|Beauty|1009|14126.0|14.0|
+|USB-C Hub|Electronics|868|13020.0|15.0|
+|Face Wash Gel|Beauty|932|12116.0|13.0|
+|Protein Shaker|Sports|984|11808.0|12.0|
+|Resistance Bands|Sports|1020|8160.0|8.0|
+|Sports Towel|Sports|898|7184.0|8.0|
+
+**La jacket en cuivre, les écouteurs sans fil et la montre connectée** sont les 3 produits qui ont généré le plus de CA (+17 000 euros). C'est principalement dû à leur prix qui est plus élevé que les autres même si beaucoup d'écouteurs ont été vendus. **Le chargeur portable, la crème pour les yeux (lignes 13 et 14)** sont des exemples de produits qui génèrent du CA grâce à la quantité vendue. 
+
+**Question :** Quels sont les 10 produits les plus vendus? 
+
+```sql
+SELECT p.product_id, p.product_name, p.category,
+       SUM(o.quantity) AS quantity_sold
+FROM products p
+INNER JOIN orders o ON p.product_id = o.product_id
+GROUP BY p.product_id, p.product_name, p.category
+ORDER BY quantity_sold DESC
+LIMIT 10;
+```
+
+**Résultat :** 
+
+|product_id|product_name|category|quantity_sold|
+|----------|------------|--------|-------------|
+|7|Portable Charger|Electronics|1084|
+|4|Mechanical Keyboard|Electronics|1044|
+|12|Running Sneakers|Fashion|1042|
+|2|Bluetooth Speaker|Electronics|1038|
+|8|LED Desk Lamp|Electronics|1033|
+|31|Perfume 50ml|Beauty|1033|
+|1|Wireless Headphones|Electronics|1027|
+|30|Eye Contour Cream|Beauty|1026|
+|34|Resistance Bands|Sports|1020|
+|27|Hair Mask|Beauty|1009|
+
+5 des top 10 produits les plus vendus sont dans la catégorie électronique et le **chargeur portable** est le produit qui a été le plus vendu au cours des 4 années. 
+
+**Question :** Quels sont les 10 produits les moins vendus? 
+
+```sql
+SELECT p.product_id, p.product_name, p.category,
+       SUM(o.quantity) AS quantity_sold
+FROM products p
+INNER JOIN orders o ON p.product_id = o.product_id
+GROUP BY p.product_id, p.product_name, p.category
+ORDER BY quantity_sold DESC
+LIMIT 10;
+```
+
+**Résultat :** 
+
+|product_id|product_name|category|quantity_sold|
+|----------|------------|--------|-------------|
+|9|Slim Fit Jeans|Fashion|834|
+|28|Lip Balm Set|Beauty|843|
+|24|Wall Clock|Home|846|
+|33|Yoga Mat|Sports|863|
+|3|USB-C Hub|Electronics|868|
+|6|Smart Watch|Electronics|897|
+|40|Sports Towel|Sports|898|
+|16|Polo Shirt|Fashion|912|
+|25|Vitamin C Serum|Beauty|912|
+|20|Scented Candle|Home|925|
 
 
-
----
 
 ### 4. Canaux & Paiement
 
