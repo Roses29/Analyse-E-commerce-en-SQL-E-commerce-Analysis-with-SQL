@@ -222,7 +222,7 @@ DROP TABLE IF EXISTS temp_orders;
 
 Après exécution de la requête ci-dessus, j'ai le modèle suivant: 
 
-![Modèle data](./images/Modèle data.png)
+![Modèle data](./images/Modèle_data_ecommerce.png)
 
 
 
