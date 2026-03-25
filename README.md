@@ -293,7 +293,7 @@ ORDER BY annee;
 
 Le nombre de commandes a constamment et fortement évolué depuis 2022 et a atteint un pic de 2502 commandes en 2025. 
 
-**Question :**Comment le panier moyen d'une commande a-t-il évolué?
+**Question :** Comment le panier moyen par commande a-t-il évolué?
 ```sql
 SELECT
     strftime('%Y',o.order_date)                                    AS year,
@@ -310,23 +310,61 @@ ORDER BY year;
 |2024|513.66|
 |2025|502.76|
 
-Il n'y a pas réellement de tendances mais le panier moyen est passé au dessus des 500 euros, avec un pic en 2024 (513,66 euros). 
+Il n'y a pas réellement de tendances mais le panier moyen est passé au dessus des 500 euros à partir de 2024, atteignant son pic la même année (environ 514 euros).  
 
 ### 2. Saisonnalité
 
-**Question :** Certains mois sont-ils structurellement plus forts, toutes années confondues ?
+**Question :** Certains mois génèrent-ils systématiquement plus de CA ? (Toutes années confondues)
 
-Plutôt que de regarder chaque mois individuellement, je calcule l'écart par rapport à la moyenne globale — ce qui permet de voir les pics réels indépendamment de la croissance année sur année.
+Poue chaque mois, je calcule le CA moyen et l'écart en pourcentage par rapport à la moyenne globale , ce qui permet de voir les pics réels indépendamment de la croissance année sur année.
 
 ```sql
--- Écart en % par rapport à la moyenne globale
-ROUND((ca_moyen - moyenne_globale) * 100.0 / moyenne_globale, 1) AS ecart_pct
+SELECT
+    mois,
+    ROUND(ca_moyen, 2)                          AS ca_moyen_du_mois,
+    ROUND(moyenne_globale, 2)                   AS moyenne_globale,
+    ROUND((ca_moyen - moyenne_globale) * 100.0
+          / moyenne_globale, 1)                 AS ecart_pct
+FROM (
+    SELECT
+        mois,
+        ca_moyen,
+        AVG(ca_moyen) OVER ()                   AS moyenne_globale
+    FROM (
+        SELECT
+            strftime('%m', ca.order_date)       AS mois,
+            AVG(ca.ca_mensuel)                  AS ca_moyen
+        FROM (
+            SELECT
+                ord.order_date                  AS order_date,
+                SUM(ord.unit_price * ord.quantity) AS ca_mensuel
+            FROM orders ord
+            GROUP BY strftime('%Y', ord.order_date), strftime('%m', ord.order_date)
+        ) ca
+        GROUP BY strftime('%m', ca.order_date)
+    )
+)
+ORDER BY ecart_pct DESC;
 ```
 **Résultat :** 
 
+|mois|ca_moyen_du_mois|moyenne_globale|ecart_pct|
+|----|----------------|---------------|---------|
+|12|77647.0|46036.0|68.7|
+|10|64217.75|46036.0|39.5|
+|11|59246.75|46036.0|28.7|
+|08|46837.0|46036.0|1.7|
+|09|44794.0|46036.0|-2.7|
+|05|42553.25|46036.0|-7.6|
+|07|40155.0|46036.0|-12.8|
+|02|37635.67|46036.0|-18.2|
+|04|36151.5|46036.0|-21.5|
+|01|35930.33|46036.0|-22.0|
+|06|34659.5|46036.0|-24.7|
+|03|32604.25|46036.0|-29.2|
 
+Les mois d'octobre, novembre et particulièrement décembre générent plus de chiffre d'affaires que la moyenne globale, ce sont les mois où il y a des pics de ventes. Les mois de janvier, juin et mars sont les mois très faibles en termes de ventes. 
 
- 
 
 ### 3. Produits
 
@@ -346,7 +384,7 @@ GROUP BY p.product_id
 ORDER BY CA DESC;
 ```
 
-📄 [`analysis_products.sql`](./sql/analysis_products.sql)
+
 
 ---
 
@@ -424,8 +462,7 @@ ecommerce-sql-analysis/
 
 ![SQLite](https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)
 ![DBeaver](https://img.shields.io/badge/DBeaver-382923?style=for-the-badge&logo=dbeaver&logoColor=white)
-![Power BI](https://img.shields.io/badge/Power_BI-F2C811?style=for-the-badge&logo=powerbi&logoColor=black)
 
 ---
 
-*[Votre Nom](https://github.com/votre-profil)*
+*[Robin B.Rubangura]()*
