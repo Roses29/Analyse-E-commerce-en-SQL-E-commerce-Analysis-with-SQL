@@ -220,6 +220,12 @@ JOIN (
 DROP TABLE IF EXISTS temp_orders;
 ```
 
+Après exécution de la requête ci-dessus, j'ai le modèle suivant: 
+
+![Modèle data](./images/Modèle data.png)
+
+
+
 ## Analyses
 
 ### 1. Performance temporelle
