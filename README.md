@@ -1,15 +1,16 @@
 # Analyse E commerce en SQL
 Un projet d'analyse de données e-commerce construit de A à Z : génération des données, modélisation, requêtes analytiques et recommendations.
 
----
 
 ## Pourquoi ce projet ?
 
-Je voulais travailler sur un jeu de données e-commerce réaliste sans dépendre d'un dataset existant. J'ai donc choisi de générer mes propres données en SQL — ce qui m'a forcé à réfléchir à la modélisation avant même d'écrire la moindre requête d'analyse.
+Je voulais travailler sur un jeu de données e-commerce réaliste sans dépendre d'un dataset existant. J'ai donc choisi de générer mes propres données en SQL — ce qui m'a forcé à réfléchir à la modélisation avant même d'écrire la moindre requête d'analyse. Les objectifs concrets du projet sont les suivants: 
 
-L'idée était simple : **partir d'un schéma vide et arriver à une segmentation client complète**, en passant par toutes les étapes intermédiaires qu'on rencontre dans un vrai projet data.
+•	mesurer la performance commerciale
+•	identifier les clients à forte valeur
+•	détecter les produits clés et les points faibles
+•	aider la prise de décision marketing
 
----
 
 ## Le schéma
 
@@ -230,24 +231,26 @@ Après exécution de la requête ci-dessus, j'ai le modèle suivant:
 
 ### 1. Performance temporelle
 
-**Question :** Comment évolue le CA mois par mois ? Y a-t-il des tendances annuelles ?
+Je commence  par une vue temporelle qui me permettra d'identifier rapidement les tendances avant de chercher à les expliquer.
 
-Je commence toujours par une vue temporelle — c'est le socle de toute analyse e-commerce. Elle permet de détecter les tendances avant de chercher à les expliquer.
+**Question :** Comment évolue le CA d'année en année? 
 
 ```sql
-SELECT
-    strftime('%Y', order_date) AS annee,
-    strftime('%m', order_date) AS mois,
-    ROUND(SUM(quantity * unit_price), 2) AS CA,
-    COUNT(DISTINCT order_id)             AS nb_commandes
-FROM orders
-GROUP BY annee, mois
-ORDER BY annee, mois;
+SELECT strftime('%Y',o.order_date) AS Year,
+       ROUND(SUM(o.quantity * o.unit_price), 2) AS CA
+FROM orders o
+GROUP BY Year
+ORDER BY Year;
 ```
 
-📄 [`analysis_temporal.sql`](./sql/analysis_temporal.sql)
+**Résultat :** 
 
----
+|Year|CA|
+|----|--|
+|2022|65115.0|
+|2023|242985.0|
+|2024|570158.0|
+|2025|1257904.0|
 
 ### 2. Saisonnalité
 
