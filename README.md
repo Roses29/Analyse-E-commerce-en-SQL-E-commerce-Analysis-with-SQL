@@ -14,7 +14,7 @@ Je voulais travailler sur un jeu de données e-commerce réaliste sans dépendre
 
 ## Le schéma
 
-Quatre tables, des relations claires, un modèle en étoile compatible Power BI.
+Quatre tables, des relations claires et un un modèle en étoile
 
 ```
 customers ──► orders ◄── order_details
@@ -233,7 +233,7 @@ Après exécution de la requête ci-dessus, j'ai le modèle suivant:
 
 Je commence  par une vue temporelle qui me permettra d'identifier rapidement les tendances avant de chercher à les expliquer.
 
-**Question :** Comment évolue le CA d'année en année? 
+**Question :** Comment évolue le Chiffre d'affaires d'année en année? 
 
 ```sql
 SELECT strftime('%Y',o.order_date) AS Year,
@@ -252,6 +252,66 @@ ORDER BY Year;
 |2024|570158.0|
 |2025|1257904.0|
 
+On observe une forte et constante croissance du CA depuis 2022. Le CA atteint son pic en 2025 avec 1,257,904, de CA, ce qui représente une croissance de 220% par rapport à 2024. 
+
+**Question :** Quel est le nombre de nouveaux clients chaque année ?
+```sql
+SELECT strftime('%Y',signup_date) as Annee, COUNT(customer_id) as Nouveaux_clients
+FROM customers 
+GROUP BY Annee; 
+
+```
+**Résultat :** 
+
+|Annee|Nouveaux_clients|
+|-----|----------------|
+|2022|247|
+|2023|250|
+|2024|267|
+|2025|236|
+
+L'entreprise gagne plus de 230 clients chaque année, mais le chiffre en 2025 est en baisse par rapport à 2024 et c'est le plus bas toutes années confondues. 
+
+**Question :** Comment le nombre de commandes a-t-il évolué? 
+
+```sql
+SELECT
+     strftime('%Y',order_date)    AS annee,
+    COUNT(DISTINCT order_id)       AS nombre_de_commandes
+FROM orders
+GROUP BY annee
+ORDER BY annee;
+```
+**Résultat :** 
+
+|annee|nombre_de_commandes|
+|-----|-------------------|
+|2022|133|
+|2023|505|
+|2024|1110|
+|2025|2502|
+
+Le nombre de commandes a constamment et fortement évolué depuis 2022 et a atteint un pic de 2502 commandes en 2025. 
+
+**Question :**Comment le panier moyen d'une commande a-t-il évolué?
+```sql
+SELECT
+    strftime('%Y',o.order_date)                                    AS year,
+    ROUND(SUM(o.quantity * o.unit_price) / COUNT(DISTINCT o.order_id), 2) AS panier_moyen
+FROM orders o
+GROUP BY year
+ORDER BY year;
+```
+**Résultat :** 
+|Annee|panier_moyen|
+|----|------------|
+|2022|489.59|
+|2023|481.16|
+|2024|513.66|
+|2025|502.76|
+
+Il n'y a pas réellement de tendances mais le panier moyen est passé au dessus des 500 euros, avec un pic en 2024 (513,66 euros). 
+
 ### 2. Saisonnalité
 
 **Question :** Certains mois sont-ils structurellement plus forts, toutes années confondues ?
@@ -262,10 +322,11 @@ Plutôt que de regarder chaque mois individuellement, je calcule l'écart par ra
 -- Écart en % par rapport à la moyenne globale
 ROUND((ca_moyen - moyenne_globale) * 100.0 / moyenne_globale, 1) AS ecart_pct
 ```
+**Résultat :** 
 
-📄 [`analysis_seasonality.sql`](./sql/analysis_seasonality.sql)
 
----
+
+ 
 
 ### 3. Produits
 
