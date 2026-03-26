@@ -7,8 +7,11 @@ Un projet d'analyse de données e-commerce construit de A à Z : génération de
 Je voulais travailler sur un jeu de données e-commerce réaliste sans dépendre d'un dataset existant. J'ai donc choisi de générer mes propres données en SQL — ce qui m'a forcé à réfléchir à la modélisation avant même d'écrire la moindre requête d'analyse. Les objectifs concrets du projet sont les suivants: 
 
 •	mesurer la performance commerciale
+
 •	identifier les clients à forte valeur
+
 •	détecter les produits clés et les points faibles
+
 •	aider la prise de décision marketing
 
 
@@ -506,9 +509,76 @@ ORDER BY Quantity_sold DESC;
 
 La catégories **Electroniques** vend le plus et génèrent de CA mais a des prix supérieurs aux produits des autres vatégories. Les produits **Maison** se vendent le moins mais génèrent plus de CA que les catégories **Beauté et Sports**. 
 
+### 4. Pays
+
+**Question :** Quel est le CA par pays ? Quel est celui qui rapporte le plus? 
+
+```sql
+SELECT
+  c.country,
+  SUM(o.quantity *o.unit_price) AS ca_par_pays
+FROM orders o
+JOIN customers c ON o.customer_id = c.customer_id
+GROUP BY c.country
+ORDER BY ca_par_pays DESC;
+```
+|country|ca_par_pays|
+|-------|-----------|
+|France|483866.0|
+|Spain|452321.0|
+|Italy|421936.0|
+|Belgium|393177.0|
+|Germany|384862.0|
+
+La **France** représente le plus gros marché en termes de CA avec 483,866 euros, suivie de l'Espagne et l'Italie qui ont rapportés plus de 420,000 de CA. 
 
 
-### 4. Canaux & Paiement
+**Question :** Quel est le nombre de clients par pays?
+
+|country|Nb_clients|
+|-------|----------|
+|France|216|
+|Spain|211|
+|Italy|199|
+|Germany|188|
+|Belgium|186|
+
+Le plus gros marché en termes de clients est en **France (216)**, mais les écarts ne sont pas très significatifs avec des pays commme l'Espagne (211) et l'Italie(199). L'entreprise a moins de clients en Allemagne (188) et en Belgique (186). 
+
+**Question :** Quels sont les comportements d'achats par pays?
+
+Pour répondre à la question, j'analyse la moyenne des commandes par client, le panier moyen par commande et le panier moyen par client: 
+
+```sql
+SELECT
+    c.country,
+    COUNT(DISTINCT o.order_id)                              AS nb_commandes,
+    COUNT(DISTINCT c.customer_id)                           AS nb_clients,
+    ROUND(COUNT(DISTINCT o.order_id) * 1.0
+          / COUNT(DISTINCT c.customer_id), 1)               AS commandes_par_client,
+    ROUND(SUM(o.quantity * o.unit_price)
+          / COUNT(DISTINCT o.order_id), 2)                  AS panier_moyen_commande,
+    ROUND(SUM(o.quantity * o.unit_price)
+          / COUNT(DISTINCT c.customer_id), 2)               AS panier_moyen_client
+FROM customers c
+INNER JOIN orders o ON c.customer_id = o.customer_id
+GROUP BY c.country
+ORDER BY panier_moyen_client DESC;
+```
+
+|country|nb_commandes|nb_clients|commandes_par_client|panier_moyen_commande|panier_moyen_client|
+|-------|------------|----------|--------------------|---------------------|-------------------|
+|France|926|216|4.3|522.53|2240.12|
+|Spain|899|211|4.3|503.14|2143.7|
+|Italy|853|199|4.3|494.65|2120.28|
+|Belgium|786|186|4.2|500.23|2113.85|
+|Germany|786|188|4.2|489.65|2047.14|
+
+Les commandes par client sont similaires entre pays (4,2 ou 4,3), ce qui montre que la comportement de réachat est homogène entre les pays et n'expliquent pas les écarts de CA entre pays. Mais en observant le **panier moyen par commande et le panier moyen par client**, on observent que les clients en France dépensent plus que les clients basés dans d'autres pays. De plus, les marchés en Belgique et en Allemagne sont similaires en termes de commandes et clients, mais les clients en Belgique dépensent un peu plus. 
+
+En général, on observe que la fréquence de réachat est faible mais que les clients dépensent de grosses sommes lorsqu'ils achètent. 
+
+### 5. Canaux & Paiement
 
 **Question :** Les comportements d'achat diffèrent-ils entre web et mobile ?
 
@@ -526,11 +596,11 @@ INNER JOIN order_details od ON o.order_detail_id = od.order_detail_id
 GROUP BY od.channel;
 ```
 
-📄 [`analysis_channels.sql`](./sql/analysis_channels.sql)
 
----
 
-### 5. Segmentation RFM
+
+
+### 6. Segmentation RFM
 
 **Question :** Comment classer les clients selon leur comportement d'achat pour cibler les bonnes actions marketing ?
 
