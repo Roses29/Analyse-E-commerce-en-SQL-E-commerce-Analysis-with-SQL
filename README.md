@@ -7,13 +7,13 @@ Un projet d'analyse de données e-commerce construit de A à Z : génération de
 Je voulais travailler sur un jeu de données e-commerce réaliste sans dépendre d'un dataset existant. J'ai donc choisi de générer mes propres données en SQL — ce qui m'a forcé à réfléchir à la modélisation avant même d'écrire la moindre requête d'analyse. Les objectifs concrets du projet sont les suivants: 
 
 
-***• mesurer la performance commerciale***
+**• mesurer la performance commerciale**
 
-***• identifier les pays et clients à forte valeur**
+**• identifier les pays et clients à forte valeur**
 
-***• détecter les produits clés et les points faibles***
+**• détecter les produits clés et les points faibles**
 
-***•	aider la prise de décision marketing***
+**•	aider la prise de décision marketing**
 
 ## Le schéma
 
@@ -663,10 +663,7 @@ rfm_final AS (
     FROM rfm_scores
 )
 
-SELECT * FROM rfm_final
-ORDER BY score_rfm DESC;
-
--- VERIFICATION — Répartition par segment
+-- Répartition par segment
 WITH rfm_base AS (
     SELECT
         c.customer_id,
@@ -695,7 +692,8 @@ rfm_final AS (
             WHEN score_r = 1 AND score_f = 1 AND score_m = 1  THEN 'Clients perdus'
             WHEN score_r >= 3 AND score_f >= 3                THEN 'Clients prometteurs'
             WHEN score_r <= 2 AND score_f <= 3                THEN 'Clients inactifs'
-            ELSE 'Autres'
+            WHEN score_r >= 4 AND score_f= 2                  THEN 'En cours d engagement'
+            ELSE 'Clients lambdas'
         END AS segment
     FROM rfm_scores
 )
@@ -706,16 +704,25 @@ FROM rfm_final
 GROUP BY segment
 ORDER BY nb_clients DESC;
 ```
+
+
 |segment|nb_clients|pct|
 |-------|----------|---|
 |Clients prometteurs|249|24.9|
 |Clients inactifs|217|21.7|
-|Client lambda/intermédiaire|194|19.4|
 |Clients fidèles|163|16.3|
+|Clients lambdas|124|12.4|
 |Clients à risque|73|7.3|
+|En cours d engagement|70|7.0|
 |Clients perdus|40|4.0|
 |Champion|37|3.7|
-|Nouveaux clients|27|2.7
+|Nouveaux clients|27|2.7|
+
+Les **clients fidèles et Champions***   représentent environ 20% de la base, soit le cœur fidèle de l'entreprise — peu nombreux mais à fort potentiel de valeur. À cela s'ajoutent les **clients prometteurs et en cours d'engagement (31.9%)**, qui constituent le vivier de croissance le plus immédiat : récents (score R entre 3 et 5) et avec une fréquence d'achat déjà correcte (score F entre 2 et 5), ils sont les mieux placés pour rejoindre le segment fidèle avec les bonnes actions marketing.
+
+Du côté des signaux d'alerte, les **clients perdus** (40 clients, 4%) et les **nouveaux clients** (27 clients, 2.7%) restent des segments minoritaires — les premiers nécessitent une campagne de réactivation, les seconds un onboarding soigné pour éviter qu'ils ne restent des acheteurs ponctuels.
+
+Les clients **lambdas** (12.4%) avec un profil intermédiaire ambigu — ni assez fidèles, ni assez récents, ni clairement à risque.
 
 
 
