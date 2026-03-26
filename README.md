@@ -6,14 +6,14 @@ Un projet d'analyse de données e-commerce construit de A à Z : génération de
 
 Je voulais travailler sur un jeu de données e-commerce réaliste sans dépendre d'un dataset existant. J'ai donc choisi de générer mes propres données en SQL — ce qui m'a forcé à réfléchir à la modélisation avant même d'écrire la moindre requête d'analyse. Les objectifs concrets du projet sont les suivants: 
 
-•	mesurer la performance commerciale
 
-•	identifier les clients à forte valeur
+***• mesurer la performance commerciale***
 
-•	détecter les produits clés et les points faibles
+***• identifier les pays et clients à forte valeur**
 
-•	aider la prise de décision marketing
+***• détecter les produits clés et les points faibles***
 
+***•	aider la prise de décision marketing***
 
 ## Le schéma
 
@@ -595,16 +595,19 @@ FROM orders o
 INNER JOIN order_details od ON o.order_detail_id = od.order_detail_id
 GROUP BY od.channel;
 ```
+|channel|nb_commandes|CA|panier_moyen|
+|-------|------------|--|------------|
+|mobile|2158|1091064.0|505.59|
+|web|2092|1045098.0|499.57|
 
-
-
+Sur la période 2022-2025, il y a eu plus de commandes mobile (2158) que de commandes web (2092) et les commandes mobile ont rapporté plus de CA. De plus, le panier moyen de commandes est légèrement plus élevé pour les commande mobile que web (+6 euros). 
 
 
 ### 6. Segmentation RFM
 
 **Question :** Comment classer les clients selon leur comportement d'achat pour cibler les bonnes actions marketing ?
 
-Le RFM est l'aboutissement logique du projet : après avoir compris les tendances globales, je descends au niveau client. Chaque client reçoit un score sur 3 dimensions (Récence, Fréquence, Montant) via `NTILE(5)`, puis est assigné à un segment.
+Le RFM est l'aboutissement logique du projet : après avoir compris les tendances globales, je descends au niveau client. Chaque client reçoit un score (allant de 1 à 5) sur 3 dimensions (Récence (R), Fréquence (F) , Montant (M), puis est assigné à un segment.
 
 | Segment | Condition | Action |
 |---------|-----------|--------|
@@ -617,36 +620,104 @@ Le RFM est l'aboutissement logique du projet : après avoir compris les tendance
 | Client perdu | R=1, F=1, M=1 | Win-back ou abandon |
 
 ```sql
--- Score Récence : 5 = le plus récent
-6 - NTILE(5) OVER (ORDER BY recence ASC) AS score_r
--- Score Fréquence et Montant : 5 = le meilleur
-NTILE(5) OVER (ORDER BY frequence ASC)  AS score_f
-NTILE(5) OVER (ORDER BY montant ASC)    AS score_m
+WITH rfm_base AS (
+    SELECT
+        c.customer_id,
+        c.country,
+        c.gender,
+        c.age,
+        CAST(julianday('2025-12-31') - julianday(MAX(o.order_date)) AS INTEGER) AS recence,
+        COUNT(DISTINCT o.order_id)                                               AS frequence,
+        ROUND(SUM(o.unit_price * o.quantity), 2)                                 AS montant
+    FROM customers c
+    INNER JOIN orders o ON c.customer_id = o.customer_id
+    GROUP BY c.customer_id
+),
+
+rfm_scores AS (
+    SELECT
+        customer_id, country, gender, age,
+        recence, frequence, montant,
+        6 - NTILE(5) OVER (ORDER BY recence ASC)  AS score_r,
+        NTILE(5) OVER (ORDER BY frequence ASC)    AS score_f,
+        NTILE(5) OVER (ORDER BY montant ASC)      AS score_m
+    FROM rfm_base
+),
+
+rfm_final AS (
+    SELECT
+        customer_id, country, gender, age,
+        recence, frequence, montant,
+        score_r, score_f, score_m,
+        (score_r + score_f + score_m) AS score_rfm,
+        CASE
+            WHEN score_r = 5 AND score_f = 5 AND score_m = 5 THEN 'Champions'
+            WHEN score_f = 5                                  THEN 'Clients fidèles'
+            WHEN score_r = 5 AND score_f = 1                  THEN 'Nouveaux clients'
+            WHEN score_r <= 2 AND score_f >= 4                THEN 'Clients à risque'
+            WHEN score_r = 1 AND score_f = 1 AND score_m = 1  THEN 'Clients perdus'
+            WHEN score_r >= 3 AND score_f >= 3                THEN 'Clients prometteurs'
+            WHEN score_r <= 2 AND score_f <= 3                THEN 'Clients inactifs'
+            ELSE 'Autres'
+        END AS segment
+    FROM rfm_scores
+)
+
+SELECT * FROM rfm_final
+ORDER BY score_rfm DESC;
+
+-- VERIFICATION — Répartition par segment
+WITH rfm_base AS (
+    SELECT
+        c.customer_id,
+        CAST(julianday('2025-12-31') - julianday(MAX(o.order_date)) AS INTEGER) AS recence,
+        COUNT(DISTINCT o.order_id)                                               AS frequence,
+        ROUND(SUM(o.unit_price * o.quantity), 2)                                 AS montant
+    FROM customers c
+    INNER JOIN orders o ON c.customer_id = o.customer_id
+    GROUP BY c.customer_id
+),
+rfm_scores AS (
+    SELECT
+        customer_id,
+        6 - NTILE(5) OVER (ORDER BY recence ASC)  AS score_r,
+        NTILE(5) OVER (ORDER BY frequence ASC)    AS score_f,
+        NTILE(5) OVER (ORDER BY montant ASC)      AS score_m
+    FROM rfm_base
+),
+rfm_final AS (
+    SELECT
+        CASE
+            WHEN score_r = 5 AND score_f = 5 AND score_m = 5 THEN 'Champion'
+            WHEN score_f = 5                                  THEN 'Clients fidèles'
+            WHEN score_r = 5 AND score_f = 1                  THEN 'Nouveaux clients'
+            WHEN score_r <= 2 AND score_f >= 4                THEN 'Clients à risque'
+            WHEN score_r = 1 AND score_f = 1 AND score_m = 1  THEN 'Clients perdus'
+            WHEN score_r >= 3 AND score_f >= 3                THEN 'Clients prometteurs'
+            WHEN score_r <= 2 AND score_f <= 3                THEN 'Clients inactifs'
+            ELSE 'Autres'
+        END AS segment
+    FROM rfm_scores
+)
+SELECT segment,
+       COUNT(*)                                            AS nb_clients,
+       ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (), 1) AS pct
+FROM rfm_final
+GROUP BY segment
+ORDER BY nb_clients DESC;
 ```
+|segment|nb_clients|pct|
+|-------|----------|---|
+|Clients prometteurs|249|24.9|
+|Clients inactifs|217|21.7|
+|Client lambda/intermédiaire|194|19.4|
+|Clients fidèles|163|16.3|
+|Clients à risque|73|7.3|
+|Clients perdus|40|4.0|
+|Champion|37|3.7|
+|Nouveaux clients|27|2.7
 
-> **Pourquoi `6 - NTILE` pour la récence ?** `NTILE` attribue 1 aux plus petites valeurs. Or une petite récence (peu de jours depuis le dernier achat) signifie un bon client — il faut donc inverser.
 
-📄 [`analysis_rfm.sql`](./sql/analysis_rfm.sql)
-
----
-
-## Structure du projet
-
-```
-ecommerce-sql-analysis/
-├── README.md
-├── sql/
-│   ├── generate_data.sql
-│   ├── analysis_temporal.sql
-│   ├── analysis_seasonality.sql
-│   ├── analysis_products.sql
-│   ├── analysis_channels.sql
-│   └── analysis_rfm.sql
-└── powerbi/
-    └── dashboard.pbix
-```
-
----
 
 ## Stack
 
