@@ -720,11 +720,61 @@ ORDER BY nb_clients DESC;
 
 Les **clients fidèles et Champions***   représentent environ 20% de la base, soit le cœur fidèle de l'entreprise — peu nombreux mais à fort potentiel de valeur. À cela s'ajoutent les **clients prometteurs et en cours d'engagement (31.9%)**, qui constituent le vivier de croissance le plus immédiat : récents (score R entre 3 et 5) et avec une fréquence d'achat déjà correcte (score F entre 2 et 5), ils sont les mieux placés pour rejoindre le segment fidèle avec les bonnes actions marketing.
 
+Les clients **lambdas** (12.4%) avec un profil intermédiaire ambigu — ni assez fidèles, ni assez récents, ni clairement à risque. Ceux-ci peuvent être aussi ciblés pour la fidélisation.
+
 Du côté des signaux d'alerte, les **clients perdus** (40 clients, 4%) et les **nouveaux clients** (27 clients, 2.7%) restent des segments minoritaires — les premiers nécessitent une campagne de réactivation, les seconds un onboarding soigné pour éviter qu'ils ne restent des acheteurs ponctuels.
 
-Les clients **lambdas** (12.4%) avec un profil intermédiaire ambigu — ni assez fidèles, ni assez récents, ni clairement à risque.
+## Conclusion et recommendations
 
+### Résumé des observations
 
+**Croissance forte mais portée par le volume, pas par le panier**
+
+Le CA a été multiplié par 19 entre 2022 et 2025, tiré principalement par l'augmentation du nombre de commandes (+1780%) plutôt que par une hausse du panier moyen, qui lui est resté stable autour de 490–515€. Cela indique que la croissance de l'entreprise repose sur l'acquisition de nouveaux clients et l'augmentation de la fréquence d'achat plutôt que sur une montée en gamme.
+
+**Une saisonnalité marquée sur le dernier trimestre**
+
+Les mois d'octobre, novembre et décembre concentrent les pics de ventes avec des écarts allant jusqu'à +68.7% au-dessus de la moyenne pour décembre. À l'inverse, janvier, mars et juin sont les mois les plus faibles (-22% à -29%). Cette saisonnalité est classique en e-commerce et suggère une forte dépendance aux fêtes de fin d'année.
+
+**Un catalogue dominé par quelques produits à forte valeur**
+
+Les 3 premiers produits en CA (Leather Jacket, Wireless Headphones, Smart Watch) représentent à eux seuls une part significative du CA total, portés par des prix élevés. À l'inverse, les produits Sports et petits accessoires Beauty génèrent peu de CA malgré des volumes de vente comparables. La catégorie Electronics est la plus performante sur les deux dimensions — volume et valeur.
+
+**Des comportements d'achat homogènes entre pays**
+
+La fréquence de réachat est similaire dans tous les pays (4.2 à 4.3 commandes par client). Les écarts de CA s'expliquent principalement par le nombre de clients et le panier moyen par commande — la France se démarque sur les deux tableaux. L'Allemagne, malgré un nombre de clients comparable à la Belgique, affiche le panier moyen le plus faible.
+
+**Mobile légèrement dominant mais peu différenciant**
+
+Le canal mobile génère plus de commandes et de CA que le web, mais l'écart de panier moyen reste marginal (+6€). Les deux canaux se comportent de manière très similaire — il n'y a pas de profil d'achat radicalement différent entre les deux.
+
+**Une base client majoritairement en phase de développement**
+
+Seuls 20% des clients sont clairement fidèles (Champions + Clients fidèles). La majorité (46.6%) est constituée de clients prometteurs, en cours d'engagement ou lambdas — des profils intermédiaires avec un potentiel de conversion vers la fidélité. Les signaux d'alerte restent limités : 7.3% de clients à risque et 4% de clients perdus.
+
+### Recommendations
+
+***1. Capitaliser sur le dernier trimestre**
+
+Les pics de ventes en octobre–décembre sont une opportunité à maximiser. Lancer des campagnes promotionnelles ciblées dès septembre, anticiper les stocks sur les produits à forte valeur (Leather Jacket, Smart Watch, Wireless Headphones) et proposer des offres de bundle Electronics + accessoires pour augmenter le panier moyen.
+
+***2. Réduire la dépendance aux mois faibles**
+Janvier, mars et juin affichent des creux structurels. Des campagnes de réactivation ciblées sur les clients inactifs et à risque pendant ces périodes creuses permettraient de lisser le CA annuel et de rentabiliser des mois habituellement peu performants.
+
+**3. Convertir les clients prometteurs et en cours d'engagement**
+Avec 31.9% de la base dans ces deux segments, c'est le levier de croissance le plus immédiat. Un programme de fidélisation avec des offres personnalisées basées sur l'historique d'achat et un système de points permettrait d'accélérer leur progression vers le segment fidèle.
+
+**4. Renforcer la position sur le marché français et faire un étude approfondie des clients dans les autres marchés**
+
+La France est le premier marché sur tous les indicateurs (CA, nombre de clients, panier moyen). Investir davantage en acquisition et en rétention sur ce marché offrirait le meilleur retour sur investissement. À l'inverse, l'Allemagne, qui affiche le panier moyen le plus faible, mériterait une analyse plus approfondie pour comprendre si le problème est lié au mix produit ou au comportement d'achat.
+
+**5. Revaloriser les catégories Sports et petits accessoires Beauty**
+
+Ces catégories vendent bien en volume mais génèrent peu de CA en raison de prix trop bas. Deux leviers sont possibles : revoir le pricing à la hausse sur certains produits, ou développer des stratégies de cross-selling avec des catégories à plus forte valeur (Ex : achat d'un Smart Watch → recommandation de Gym Gloves ou Protein Shaker).
+
+**6. Mettre en place un programme de win-back pour les clients perdus**
+   
+Les 40 clients perdus (4%) représentent un CA potentiel non négligeable. Une campagne de réactivation avec une offre exclusive et limitée dans le temps permettrait d'en reconvertir une partie à moindre coût, comparé à l'acquisition de nouveaux clients.
 
 ## Stack
 
@@ -733,4 +783,4 @@ Les clients **lambdas** (12.4%) avec un profil intermédiaire ambigu — ni asse
 
 ---
 
-*[Robin B.Rubangura]()*
+*[Robin B.Rubangura](https://roses29.github.io/My-data-portfolio/)*
