@@ -1,3 +1,5 @@
+🇫🇷 [Lire en français](README_FR.md)
+
 # Analyse E commerce en SQL
 Un projet d'analyse de données e-commerce construit de A à Z : génération des données, modélisation, requêtes analytiques et recommendations.
 
