@@ -1,4 +1,4 @@
-🇬🇧 [Read in English](README.md)
+🇫🇷 [Lire en français](README_FR.md)
 
 
 # 🛒 E-commerce Data Analysis with SQL
