@@ -242,7 +242,7 @@ Je commence  par une vue temporelle qui me permettra d'identifier rapidement les
 
 ```sql
 SELECT strftime('%Y',o.order_date) AS Year,
-       ROUND(SUM(o.quantity * o.unit_price), 2) AS CA
+       ROUND(SUM(o.quantity * o.unit_price), 2) AS Revenue
 FROM orders o
 GROUP BY Year
 ORDER BY Year;
@@ -250,7 +250,7 @@ ORDER BY Year;
 
 **Résultat :** 
 
-|Year|CA|
+|Year|Revenue|
 |----|--|
 |2022|65115.0|
 |2023|242985.0|
@@ -308,6 +308,7 @@ GROUP BY year
 ORDER BY year;
 ```
 **Résultat :** 
+
 |Annee|panier_moyen|
 |----|------------|
 |2022|489.59|
@@ -321,7 +322,7 @@ Il n'y a pas réellement de tendances mais le panier moyen est passé au dessus 
 
 **Question :** Certains mois génèrent-ils systématiquement plus de CA ? (Toutes années confondues)
 
-Poue chaque mois, je calcule le CA moyen et l'écart en pourcentage par rapport à la moyenne globale , ce qui permet de voir les pics réels indépendamment de la croissance année sur année.
+Pour chaque mois, je calcule le CA moyen et l'écart en pourcentage par rapport à la moyenne globale , ce qui permet de voir les pics réels indépendamment de la croissance année sur année.
 
 ```sql
 SELECT
